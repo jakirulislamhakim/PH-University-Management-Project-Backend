@@ -12,8 +12,10 @@ app.use(cors());
 app.use('/api/v1/students', StudentRoutes);
 
 const getAController = (req: Request, res: Response) => {
-  const a = 10;
-  res.send(a);
+  res.send({
+    success: true,
+    message: "PH University is running"
+  });
 };
 
 app.get('/', getAController);
