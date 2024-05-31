@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { StudentServices } from './student.service';
+import { Request, Response } from "express";
+import { StudentServices } from "./student.service";
 
 const createStudent = async (req: Request, res: Response) => {
   try {
@@ -8,7 +8,7 @@ const createStudent = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Student is created succesfully',
+      message: "Student is created succesfully",
       data: result,
     });
   } catch (err) {
@@ -22,7 +22,7 @@ const getAllStudents = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Students are retrieved succesfully',
+      message: "Students are retrieved succesfully",
       data: result,
     });
   } catch (err) {
@@ -38,7 +38,7 @@ const getSingleStudent = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Student is retrieved succesfully',
+      message: "Student is retrieved succesfully",
       data: result,
     });
   } catch (err) {
