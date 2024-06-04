@@ -13,5 +13,10 @@ academicSemesterRoutes.post(
   ),
   academicSemesterControllers.createAcademicSemester,
 );
+// get all semester route
+academicSemesterRoutes.get(
+  '/:id',
+  academicSemesterControllers.getAllAcademicSemester,
+);
 
 export default academicSemesterRoutes;
