@@ -15,8 +15,19 @@ academicSemesterRoutes.post(
 );
 // get all semester route
 academicSemesterRoutes.get(
-  '/:id',
+  '/',
   academicSemesterControllers.getAllAcademicSemester,
 );
+// get single semester route
+academicSemesterRoutes.get(
+  '/:id',
+  academicSemesterControllers.getSingleAcademicSemester,
+);
+// update semester route 
+academicSemesterRoutes.patch(
+  '/:id',
+  academicSemesterControllers.updateAcademicSemester
+)
+
 
 export default academicSemesterRoutes;
