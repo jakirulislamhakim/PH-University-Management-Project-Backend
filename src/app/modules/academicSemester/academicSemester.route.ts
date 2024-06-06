@@ -20,14 +20,16 @@ academicSemesterRoutes.get(
 );
 // get single semester route
 academicSemesterRoutes.get(
-  '/:id',
+  '/:semesterId',
   academicSemesterControllers.getSingleAcademicSemester,
 );
-// update semester route 
+// update semester route
 academicSemesterRoutes.patch(
-  '/:id',
-  academicSemesterControllers.updateAcademicSemester
-)
-
+  '/:semesterId',
+  validateRequest(
+    academicSemesterValidations.updateAcademicSemesterValidationSchema,
+  ),
+  academicSemesterControllers.updateAcademicSemester,
+);
 
 export default academicSemesterRoutes;
