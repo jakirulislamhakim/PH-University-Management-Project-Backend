@@ -3,10 +3,10 @@ import { academicSemesterControllers } from './academicSemester.controller';
 import validateRequest from '../../middleware/validateRequest';
 import { academicSemesterValidations } from './academicSemester.validaation';
 
-const academicSemesterRoutes = Router();
+const AcademicSemesterRoutes = Router();
 
 // create semester route
-academicSemesterRoutes.post(
+AcademicSemesterRoutes.post(
   '/create-academic-semester',
   validateRequest(
     academicSemesterValidations.createAcademicSemesterValidationSchema,
@@ -14,17 +14,17 @@ academicSemesterRoutes.post(
   academicSemesterControllers.createAcademicSemester,
 );
 // get all semester route
-academicSemesterRoutes.get(
+AcademicSemesterRoutes.get(
   '/',
   academicSemesterControllers.getAllAcademicSemester,
 );
 // get single semester route
-academicSemesterRoutes.get(
+AcademicSemesterRoutes.get(
   '/:semesterId',
   academicSemesterControllers.getSingleAcademicSemester,
 );
 // update semester route
-academicSemesterRoutes.patch(
+AcademicSemesterRoutes.patch(
   '/:semesterId',
   validateRequest(
     academicSemesterValidations.updateAcademicSemesterValidationSchema,
@@ -32,4 +32,4 @@ academicSemesterRoutes.patch(
   academicSemesterControllers.updateAcademicSemester,
 );
 
-export default academicSemesterRoutes;
+export default AcademicSemesterRoutes;

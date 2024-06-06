@@ -26,14 +26,15 @@ export const generateStudentId = async (payload: TAcademicSemester) => {
   const currentStudentSemesterCode = payload.code;
   const currentStudentYear = payload.year;
 
-  if (lastAdmitStudentId && lastAdmitStudentSemesterCode === currentStudentSemesterCode && lastAdmitStudentYear === currentStudentYear) {
+  if (
+    lastAdmitStudentId &&
+    lastAdmitStudentSemesterCode === currentStudentSemesterCode &&
+    lastAdmitStudentYear === currentStudentYear
+  ) {
     currentId = lastAdmitStudentId.substring(6);
   }
 
-
-  let incrementStudentId = (Number(currentId) + 1)
-    .toString()
-    .padStart(4, '0');
+  let incrementStudentId = (Number(currentId) + 1).toString().padStart(4, '0');
   incrementStudentId = `${payload.year}${payload.code}${incrementStudentId}`;
 
   return incrementStudentId;

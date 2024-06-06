@@ -3,12 +3,12 @@ import { userControllers } from './user.controller';
 import { studentValidations } from '../student/student.validation';
 import validateRequest from '../../middleware/validateRequest';
 
-const userRouter = express.Router();
+const UserRoutes = express.Router();
 
-userRouter.post(
+UserRoutes.post(
   '/create-student',
   validateRequest(studentValidations.createStudentValidationSchema),
   userControllers.createStudent,
 );
 
-export default userRouter;
+export default UserRoutes;
