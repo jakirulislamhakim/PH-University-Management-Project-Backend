@@ -32,5 +32,5 @@ export const academicFacultyServices = {
   createAcademicFacultyIntoDB,
   getAllAcademicFacultiesFromDB,
   getSingleAcademicFacultyFromDB,
-  updateAllAcademicFacultyFromDB: updateAllAcademicFacultyIntoDB,
+  updateAllAcademicFacultyIntoDB,
 };
