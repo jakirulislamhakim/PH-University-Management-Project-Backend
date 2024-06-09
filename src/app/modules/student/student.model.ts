@@ -1,10 +1,12 @@
-import { Schema, model } from 'mongoose';
+import { CallbackError, Schema, model } from 'mongoose';
 import {
   TGuardian,
   TLocalGuardian,
   TStudent,
   TUserName,
 } from './student.interface';
+import AppError from '../../errors/AppError';
+import httpStatus from 'http-status';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -94,6 +96,10 @@ const studentSchema = new Schema<TStudent>(
       type: Schema.Types.ObjectId,
       ref: 'AcademicSemester',
     },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment'
+    },
     isDeleted: { type: Boolean, default: false },
   },
   {
@@ -102,5 +108,18 @@ const studentSchema = new Schema<TStudent>(
     toObject: { virtuals: true },
   },
 );
+
+// Middleware to check if the student exists before deleting
+studentSchema.pre('findOneAndUpdate', async function (next) {
+  try {
+    const isExistStudent = await Student.findOne(this.getQuery());
+    if (!isExistStudent) {
+      return next(new AppError(httpStatus.FORBIDDEN, "This student doesn't exist"));
+    }
+    next();
+  } catch (error) {
+    next(error as CallbackError);
+  }
+});
 
 export const Student = model<TStudent>('Student', studentSchema);
