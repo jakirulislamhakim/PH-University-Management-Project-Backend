@@ -17,38 +17,35 @@ const academicDepartmentSchema = new Schema<TAcademicDepartment>(
   },
 );
 
-
-
-
-
-// check before department is exist 
+// check isExist user before save DB
 academicDepartmentSchema.pre('save', async function (next) {
   try {
-    const isExistAcademicDepartment = await AcademicDepartment.findOne({ name: this.name });
+    const isExistAcademicDepartment = await AcademicDepartment.findOne({
+      name: this.name,
+    });
     if (isExistAcademicDepartment) {
-      throw new AppError(404, "This academic department is already exist!" );
+      throw new AppError(404, 'This academic department is already exist!');
     }
-    next()
+    next();
   } catch (error) {
-    next(error as CallbackError)
+    next(error as CallbackError);
   }
-})
+});
 
-
+//
 academicDepartmentSchema.pre('findOneAndUpdate', async function (next) {
   try {
-    const isExistAcademicDepartment = await AcademicDepartment.findOne(this.getQuery());
+    const isExistAcademicDepartment = await AcademicDepartment.findOne(
+      this.getQuery(),
+    );
     if (!isExistAcademicDepartment) {
-      throw new AppError(404,"The department does not exist!")
+      throw new AppError(404, 'The department does not exist!');
     }
-    next()
+    next();
   } catch (error) {
-    next(error as Error)
+    next(error as CallbackError);
   }
-})
-
-
-
+});
 
 const AcademicDepartment = model<TAcademicDepartment>(
   'AcademicDepartment',

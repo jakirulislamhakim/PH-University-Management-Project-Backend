@@ -27,13 +27,12 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Admission semester not found');
   }
 
-  // start session 
+  // start session
   const session = await mongoose.startSession();
 
   try {
     // start transaction
     session.startTransaction();
-    console.log({ session });
     userData.id = await generateStudentId(admissionSemester);
 
     // create a user (transaction -1)
@@ -41,7 +40,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
     // create a student
     if (!createNewUser.length) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create user")
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
     // set id , _id as user
     payload.id = createNewUser[0].id; // embedding user id as id field in student model
@@ -51,18 +50,17 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     const createNewStudent = await Student.create([payload], { session });
 
     if (!createNewStudent) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create student")
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
     }
 
-    // commit transaction 
+    // commit transaction
     await session.commitTransaction();
-    await session.endSession()
+    await session.endSession();
     return createNewStudent;
-
   } catch (error) {
     await session.abortTransaction();
-    await session.endSession()
-    throw new AppError(httpStatus.BAD_REQUEST, "Failed to create student");
+    await session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
   }
 };
 

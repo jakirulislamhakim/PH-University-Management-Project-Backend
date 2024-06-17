@@ -13,7 +13,7 @@ app.use(cors());
 // application routes
 app.use('/api/v1', router);
 
-const test = (req: Request, res: Response) => {
+const test = async (req: Request, res: Response) => {
   res.send({
     success: true,
     message: 'PH University is running',
@@ -22,7 +22,7 @@ const test = (req: Request, res: Response) => {
 
 app.get('/', test);
 
-// error handle
+// global error handle
 app.use(globalErrorHandler);
 // not found route
 app.all('*', notFoundRoute);

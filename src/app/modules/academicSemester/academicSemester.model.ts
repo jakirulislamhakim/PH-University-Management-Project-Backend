@@ -46,7 +46,7 @@ academicSemesterSchema.pre('save', async function (next) {
     name: this.name,
   });
   if (isExistSemester) {
-    throw new AppError(httpStatus.FORBIDDEN,'Semester is already exist !');
+    throw new AppError(httpStatus.FORBIDDEN, 'Semester is already exist !');
   }
   next();
 });

@@ -98,7 +98,7 @@ const studentSchema = new Schema<TStudent>(
     },
     academicDepartment: {
       type: Schema.Types.ObjectId,
-      ref: 'AcademicDepartment'
+      ref: 'AcademicDepartment',
     },
     isDeleted: { type: Boolean, default: false },
   },
@@ -114,7 +114,9 @@ studentSchema.pre('findOneAndUpdate', async function (next) {
   try {
     const isExistStudent = await Student.findOne(this.getQuery());
     if (!isExistStudent) {
-      return next(new AppError(httpStatus.FORBIDDEN, "This student doesn't exist"));
+      return next(
+        new AppError(httpStatus.FORBIDDEN, "This student doesn't exist"),
+      );
     }
     next();
   } catch (error) {
