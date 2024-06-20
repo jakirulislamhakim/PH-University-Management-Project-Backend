@@ -124,4 +124,11 @@ studentSchema.pre('findOneAndUpdate', async function (next) {
   }
 });
 
+studentSchema.virtual('fullName').get(function () {
+  return (
+    this?.name &&
+    `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`
+  );
+});
+
 export const Student = model<TStudent>('Student', studentSchema);

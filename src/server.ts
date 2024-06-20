@@ -22,7 +22,7 @@ main();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
   console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-  console.log('UNHANDLED REJECTION! 💥 Shutting down...'); 
+  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
   if (server) {
     server.close(() => {
       process.exit(1);
