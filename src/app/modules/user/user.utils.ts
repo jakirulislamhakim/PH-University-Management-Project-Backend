@@ -39,3 +39,26 @@ export const generateStudentId = async (payload: TAcademicSemester) => {
 
   return incrementStudentId;
 };
+
+// generated unique faculty id --> F-0001
+export const generateFacultyId = async (): Promise<string> => {
+  const latestFacultyUser = await User.findOne(
+    { role: 'faculty' },
+    { id: 1, _id: 0 },
+  )
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!latestFacultyUser) {
+    return 'F-0001';
+  }
+
+  const [, currentId] = latestFacultyUser.id.split('-');
+  const currentIdNumber = Number(currentId);
+  const incrementedIdNumber = (currentIdNumber + 1).toString();
+  const paddedIncrementedId = incrementedIdNumber.padStart(4, '0');
+
+  const newFacultyId = `F-${paddedIncrementedId}`;
+
+  return newFacultyId;
+};

@@ -6,10 +6,15 @@ import { TStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
-import { generateStudentId } from './user.utils';
+import { generateFacultyId, generateStudentId } from './user.utils';
 import mongoose from 'mongoose';
+import { TFaculty } from '../faculty/faculty.interface';
+import Faculty from '../faculty/faculty.model';
 
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createStudentIntoDB = async (
+  password: string,
+  payload: TStudent,
+): Promise<TStudent> => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -56,7 +61,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     // commit transaction
     await session.commitTransaction();
     await session.endSession();
-    return createNewStudent;
+    return createNewStudent[0];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     await session.abortTransaction();
@@ -65,6 +70,46 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   }
 };
 
+// create faculty
+const createFacultyIntoDB = async (
+  password: string,
+  payload: TFaculty,
+): Promise<TFaculty> => {
+  const session = await mongoose.startSession();
+  try {
+    // start session
+    session.startTransaction();
+
+    const generatedFacultyId = await generateFacultyId();
+
+    const user: Partial<TUser> = {
+      role: 'faculty',
+      id: generatedFacultyId,
+      password: password || config.default_password,
+    };
+
+    // create user into DB with transaction-1
+    const [createUser] = await User.create([user], { session });
+
+    // faculty generateID
+    payload.id = generatedFacultyId;
+    payload.user = createUser._id; // reference created user _id
+
+    // create faculty into DB with transaction-2
+    const [createFaculty] = await Faculty.create([payload], { session });
+
+    // commit transaction
+    await session.commitTransaction();
+    return createFaculty;
+  } catch (error) {
+    await session.abortTransaction();
+    throw new AppError(httpStatus.BAD_REQUEST, 'failed to carate faculty');
+  } finally {
+    await session.endSession();
+  }
+};
+
 export const userServices = {
   createStudentIntoDB,
+  createFacultyIntoDB,
 };
