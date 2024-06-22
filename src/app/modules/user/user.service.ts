@@ -101,9 +101,10 @@ const createFacultyIntoDB = async (
     // commit transaction
     await session.commitTransaction();
     return createFaculty;
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     await session.abortTransaction();
-    throw new AppError(httpStatus.BAD_REQUEST, 'failed to carate faculty');
+    throw new Error(error);
   } finally {
     await session.endSession();
   }

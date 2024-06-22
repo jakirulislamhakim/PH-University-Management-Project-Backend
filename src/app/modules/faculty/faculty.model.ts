@@ -9,13 +9,13 @@ const facultySchemaName = {
 
 const facultySchema = new Schema<TFaculty>(
   {
-    id: { type: String },
+    id: { type: String, unique: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     designation: { type: String },
     name: { type: facultySchemaName, required: true },
     gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
     dateOfBirth: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     contactNo: { type: String, required: true },
     emergencyContactNo: { type: String, required: true },
     bloodGroup: {
