@@ -62,3 +62,26 @@ export const generateFacultyId = async (): Promise<string> => {
 
   return newFacultyId;
 };
+
+// generated unique admin id --> A-0001
+export const generateAdminId = async (): Promise<string> => {
+  const latestFacultyUser = await User.findOne(
+    { role: 'admin' },
+    { id: 1, _id: 0 },
+  )
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!latestFacultyUser) {
+    return 'A-0001';
+  }
+
+  const [, currentId] = latestFacultyUser.id.split('-');
+  const currentIdNumber = Number(currentId);
+  const incrementedIdNumber = (currentIdNumber + 1).toString();
+  const paddedIncrementedId = incrementedIdNumber.padStart(4, '0');
+
+  const newFacultyId = `A-${paddedIncrementedId}`;
+
+  return newFacultyId;
+};
