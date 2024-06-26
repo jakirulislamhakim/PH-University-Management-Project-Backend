@@ -13,5 +13,10 @@ CourseRoutes.post(
 CourseRoutes.get('/', courseControllers.getAllCourse);
 CourseRoutes.get('/:id', courseControllers.getSingleCourse);
 CourseRoutes.delete('/:id', courseControllers.deleteSpecificCourse);
+CourseRoutes.patch(
+  '/:id',
+  validateRequest(courseValidation.updateCourseValidationSchema),
+  courseControllers.updateSpecificCourse,
+);
 
 export default CourseRoutes;
