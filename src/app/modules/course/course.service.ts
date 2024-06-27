@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { courseSearchableFields } from './course.constant';
-import { TCourse } from './course.interface';
-import { Course } from './course.model';
+import { TCourse, TCourseFaculty } from './course.interface';
+import { Course, CourseFaculty } from './course.model';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 
@@ -81,7 +81,7 @@ const updateSpecificCourseIntoDB = async (
         {
           $pull: { preRequisiteCourses: { course: { $in: deletedRequisite } } },
         },
-        { runValidators: true, new: true },
+        { runValidators: true, new: true, session },
       );
 
       if (!deletePreRequisiteCourse) {
@@ -98,7 +98,7 @@ const updateSpecificCourseIntoDB = async (
         {
           $addToSet: { preRequisiteCourses: { $each: newPerquisitesCourse } },
         },
-        { new: true, runValidators: true },
+        { new: true, runValidators: true, session },
       );
 
       if (!addPerquisitesCourse) {
@@ -118,10 +118,50 @@ const updateSpecificCourseIntoDB = async (
   }
 };
 
+const assignFacultiesWithCourseIntoDB = async (
+  id: string,
+  payload: TCourseFaculty,
+) => {
+  const result = await CourseFaculty.findByIdAndUpdate(
+    id,
+    {
+      course: id,
+      $addToSet: { faculties: { $each: payload } },
+    },
+    {
+      upsert: true,
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  return result;
+};
+
+const removeFacultiesWithCourseFromDB = async (
+  id: string,
+  payload: TCourseFaculty,
+) => {
+  const result = await CourseFaculty.findByIdAndUpdate(
+    id,
+    {
+      $pull: { faculties: { $in: payload } },
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  return result;
+};
+
 export const courseServices = {
   CreateCourseIntoDB,
   getAllCourseFromDB,
   getSingleCourseFromDB,
   deleteSpecificCourseFromDB,
   updateSpecificCourseIntoDB,
+  assignFacultiesWithCourseIntoDB,
+  removeFacultiesWithCourseFromDB,
 };

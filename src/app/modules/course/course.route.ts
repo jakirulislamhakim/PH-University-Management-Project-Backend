@@ -19,4 +19,15 @@ CourseRoutes.patch(
   courseControllers.updateSpecificCourse,
 );
 
+CourseRoutes.put(
+  '/:courseId/assign-faculties',
+  validateRequest(courseValidation.courseWithFacultyValidationSchema),
+  courseControllers.assignFacultiesWithCourse,
+);
+CourseRoutes.delete(
+  '/:courseId/remove-faculties',
+  validateRequest(courseValidation.courseWithFacultyValidationSchema),
+  courseControllers.removeFacultiesWithCourse,
+);
+
 export default CourseRoutes;
