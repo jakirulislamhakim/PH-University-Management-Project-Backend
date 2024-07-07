@@ -1,13 +1,23 @@
 import { Schema, model } from 'mongoose';
-import { TUser } from './user.interface';
+import { TUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 
-const userSchema = new Schema<TUser>(
+const userSchema = new Schema<TUser, UserModel>(
   {
     id: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    needsPasswordChange: { type: Boolean, default: true },
+    password: {
+      type: String,
+      required: true,
+      select: 0,
+    },
+    needsPasswordChange: {
+      type: Boolean,
+      default: true,
+    },
+    passwordChangeAt: {
+      type: Date,
+    },
     role: { type: String, enum: ['student', 'faculty', 'admin'] },
     status: {
       type: String,
@@ -34,4 +44,27 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 
-export const User = model<TUser>('User', userSchema);
+// create static methods
+userSchema.statics.isUserExistsByCustomId = async function (id: string) {
+  return await User.findOne({ id }).select('+password');
+};
+
+// check password match
+userSchema.statics.isPasswordMatch = async function (
+  plainTextPassword: string,
+  hashPassword: string,
+) {
+  return await bcrypt.compare(plainTextPassword, hashPassword);
+};
+
+// check the jwt token create before the changePasswordAt
+userSchema.statics.isJwtIssuedAtAfterPasswordChangeAt = function (
+  passwordChangeAt: Date,
+  jwtIssuedAt: number,
+) {
+  const convertSecondPasswordChangeAt =
+    new Date(passwordChangeAt).getTime() / 1000;
+  return convertSecondPasswordChangeAt > jwtIssuedAt;
+};
+
+export const User = model<TUser, UserModel>('User', userSchema);
