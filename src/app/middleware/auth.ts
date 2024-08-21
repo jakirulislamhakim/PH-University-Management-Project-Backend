@@ -1,10 +1,9 @@
 import httpStatus from 'http-status';
 import AppError from '../errors/AppError';
 import catchAsync from '../utils/catchAsync';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import config from '../config';
 import { TUserRole } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
+import decodedAccessToken from '../utils/decodedToken';
 
 const auth = (...roleForAuthorization: TUserRole[]) => {
   return catchAsync(async (req, res, next) => {
@@ -14,10 +13,8 @@ const auth = (...roleForAuthorization: TUserRole[]) => {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are unauthorized !');
     }
 
-    const decoded = jwt.verify(
-      token,
-      config.jwt_access_secret_key as string,
-    ) as JwtPayload;
+    // decoded access token. if token is not valid then send 401
+    const decoded = decodedAccessToken(token);
 
     const { userId, userRole, iat } = decoded;
 

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { academicSemesterControllers } from './academicSemester.controller';
 import validateRequest from '../../middleware/validateRequest';
 import { academicSemesterValidations } from './academicSemester.validaation';
+import auth from '../../middleware/auth';
 
 const AcademicSemesterRoutes = Router();
 
@@ -16,6 +17,7 @@ AcademicSemesterRoutes.post(
 // get all semester route
 AcademicSemesterRoutes.get(
   '/',
+  auth('admin'),
   academicSemesterControllers.getAllAcademicSemester,
 );
 // get single semester route
