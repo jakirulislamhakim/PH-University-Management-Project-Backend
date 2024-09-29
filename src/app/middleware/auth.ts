@@ -3,7 +3,7 @@ import AppError from '../errors/AppError';
 import catchAsync from '../utils/catchAsync';
 import { TUserRole } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
-import decodedAccessToken from '../utils/decodedToken';
+import { decodedAccessToken } from '../utils/decodedToken';
 
 const auth = (...roleForAuthorization: TUserRole[]) => {
   return catchAsync(async (req, res, next) => {

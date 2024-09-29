@@ -5,7 +5,16 @@ import config from '../../config';
 
 const userSchema = new Schema<TUser, UserModel>(
   {
-    id: { type: String, required: true, unique: true },
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
@@ -18,7 +27,10 @@ const userSchema = new Schema<TUser, UserModel>(
     passwordChangeAt: {
       type: Date,
     },
-    role: { type: String, enum: ['student', 'faculty', 'admin'] },
+    role: {
+      type: String,
+      enum: ['student', 'faculty', 'admin'],
+    },
     status: {
       type: String,
       enum: ['blocked', 'in-progress'],
