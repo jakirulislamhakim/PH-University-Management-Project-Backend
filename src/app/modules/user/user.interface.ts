@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Model } from 'mongoose';
-import { UserRole } from './user.constant';
+import { UserRole, UserStatus } from './user.constant';
 
 export interface TUser {
   id: string;
@@ -9,7 +9,7 @@ export interface TUser {
   needsPasswordChange: boolean;
   passwordChangeAt?: Date;
   role: 'student' | 'faculty' | 'admin';
-  status: 'blocked' | 'in-progress';
+  status: (typeof UserStatus)[number];
   isDeleted: boolean;
 }
 

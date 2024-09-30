@@ -6,6 +6,7 @@ import { facultyValidation } from '../faculty/faculty.validation';
 import { adminValidations } from '../admin/admin.validation';
 import auth from '../../middleware/auth';
 import { UserRole } from './user.constant';
+import { userValidation } from './user.validation';
 
 const UserRoutes = express.Router();
 
@@ -28,6 +29,19 @@ UserRoutes.post(
   // NOTE: super admin
   validateRequest(adminValidations.createAdminValidationSchema),
   userControllers.createAdmin,
+);
+
+UserRoutes.get(
+  '/me',
+  auth('student', 'admin', 'faculty'),
+  userControllers.getMe,
+);
+
+UserRoutes.post(
+  '/change-status/:id',
+  validateRequest(userValidation.changeUserStatusValidationSchema),
+  auth('admin'),
+  userControllers.changeUserStatus,
 );
 
 export default UserRoutes;

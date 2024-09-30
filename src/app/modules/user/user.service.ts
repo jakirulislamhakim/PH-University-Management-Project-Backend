@@ -20,6 +20,15 @@ const createStudentIntoDB = async (
   password: string,
   payload: TStudent,
 ): Promise<TStudent> => {
+  // check email is already use
+  const isExistsUser = await User.findOne({ email: payload.email });
+  if (isExistsUser) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      'The user email is already exists.',
+    );
+  }
+
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -82,6 +91,15 @@ const createFacultyIntoDB = async (
   password: string,
   payload: TFaculty,
 ): Promise<TFaculty> => {
+  // check email is already use
+  const isExistsUser = await User.findOne({ email: payload.email });
+  if (isExistsUser) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      'The user email is already exists.',
+    );
+  }
+
   const session = await mongoose.startSession();
   try {
     // start session
@@ -120,6 +138,15 @@ const createFacultyIntoDB = async (
 
 // create admin
 const createAdminIntoDB = async (password: string, payload: TFaculty) => {
+  // check email is already use
+  const isExistsUser = await User.findOne({ email: payload.email });
+  if (isExistsUser) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      'The user email is already exists.',
+    );
+  }
+
   // create a user object
   const userData: Partial<TUser> = {
     role: 'admin',
@@ -164,8 +191,43 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
+// get specific user data
+const getMe = async (userId: string, userRole: string) => {
+  let result = null;
+
+  switch (userRole) {
+    case 'admin':
+      result = await Admin.findOne({ id: userId }).populate('user');
+      break;
+    case 'faculty':
+      result = await Faculty.findOne({ id: userId }).populate('user');
+      break;
+    case 'student':
+      result = await Student.findOne({ id: userId }).populate('user');
+      break;
+    default:
+      break;
+  }
+
+  return result;
+};
+
+// change user status
+const changeUserStatus = async (id: string, updatedStatus: string) => {
+  const result = await User.findByIdAndUpdate(
+    id,
+    {
+      status: updatedStatus,
+    },
+    { new: true },
+  );
+  return result;
+};
+
 export const userServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
+  getMe,
+  changeUserStatus,
 };

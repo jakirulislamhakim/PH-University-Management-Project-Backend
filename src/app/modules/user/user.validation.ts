@@ -1,11 +1,12 @@
 import z from 'zod';
+import { UserStatus } from './user.constant';
 
-export const userValidationSchema = z.object({
-  password: z
-    .string({
-      invalid_type_error: 'password must be string',
-    })
-    .min(0, { message: 'password must be required' })
-    .max(20, { message: "password can't not be upper 20 character" })
-    .optional(),
+const changeUserStatusValidationSchema = z.object({
+  body: z.object({
+    status: z.enum(UserStatus),
+  }),
 });
+
+export const userValidation = {
+  changeUserStatusValidationSchema,
+};

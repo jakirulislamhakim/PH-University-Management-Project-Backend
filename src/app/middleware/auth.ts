@@ -33,10 +33,7 @@ const auth = (...roleForAuthorization: TUserRole[]) => {
     //check the user is blocked
     const userStatus = user?.status;
     if (userStatus === 'blocked') {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        `The ${userRole} ` + userStatus,
-      );
+      throw new AppError(httpStatus.BAD_REQUEST, `The ${userRole} blocked`);
     }
 
     // check password change time after jwt issued time

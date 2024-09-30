@@ -9,7 +9,7 @@ const createFacultyName = z.object({
 // main schema
 const createFacultyValidationSchema = z.object({
   body: z.object({
-    password: z.string().min(1, { message: 'Password is required' }),
+    password: z.string().min(1, { message: 'Password is required' }).optional(),
     faculty: z.object({
       id: z
         .string()
