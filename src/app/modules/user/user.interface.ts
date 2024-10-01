@@ -26,3 +26,14 @@ export interface UserModel extends Model<TUser> {
 }
 
 export type TUserRole = (typeof UserRole)[keyof typeof UserRole];
+
+export type TMulterFile = {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+};

@@ -4,7 +4,7 @@ import AppError from '../../errors/AppError';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { TStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
-import { TUser } from './user.interface';
+import { TMulterFile, TUser } from './user.interface';
 import { User } from './user.model';
 import {
   generateAdminId,
@@ -15,8 +15,10 @@ import mongoose from 'mongoose';
 import { TFaculty } from '../faculty/faculty.interface';
 import Faculty from '../faculty/faculty.model';
 import { Admin } from '../admin/amdin.model';
+import { upLoadImageInCloudinary } from '../../utils/upLoadImageInCloudinary';
 
 const createStudentIntoDB = async (
+  imageInfo: TMulterFile,
   password: string,
   payload: TStudent,
 ): Promise<TStudent> => {
@@ -63,6 +65,15 @@ const createStudentIntoDB = async (
     if (!createNewUser.length) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
+
+    // upload image in cloudinary
+    const imgPublicId = `${createNewUser[0].id}${payload.name.lastName}`;
+    const profileImg = await upLoadImageInCloudinary(
+      imageInfo.path,
+      imgPublicId,
+    );
+    // set image url
+    payload.profileImg = profileImg.secure_url;
     // set id , _id as user
     payload.id = createNewUser[0].id; // embedding user id as id field in student model
     payload.user = createNewUser[0]._id; // reference user _id as user field in student model
@@ -88,6 +99,7 @@ const createStudentIntoDB = async (
 
 // create faculty
 const createFacultyIntoDB = async (
+  imageInfo: TMulterFile,
   password: string,
   payload: TFaculty,
 ): Promise<TFaculty> => {
@@ -117,6 +129,14 @@ const createFacultyIntoDB = async (
     // create user into DB with transaction-1
     const [createUser] = await User.create([user], { session });
 
+    // upload image in cloudinary
+    const imgPublicId = `${createUser.id}${payload.name.lastName}`;
+    const profileImg = await upLoadImageInCloudinary(
+      imageInfo.path,
+      imgPublicId,
+    );
+    // set image url
+    payload.profileImg = profileImg.secure_url;
     // faculty generateID
     payload.id = generatedFacultyId;
     payload.user = createUser._id; // reference created user _id
@@ -137,7 +157,11 @@ const createFacultyIntoDB = async (
 };
 
 // create admin
-const createAdminIntoDB = async (password: string, payload: TFaculty) => {
+const createAdminIntoDB = async (
+  imageInfo: TMulterFile,
+  password: string,
+  payload: TFaculty,
+) => {
   // check email is already use
   const isExistsUser = await User.findOne({ email: payload.email });
   if (isExistsUser) {
@@ -168,6 +192,15 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
     if (!newUser.length) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create admin');
     }
+
+    // upload image in cloudinary
+    const imgPublicId = `${newUser[0].id}${payload.name.lastName}`;
+    const profileImg = await upLoadImageInCloudinary(
+      imageInfo.path,
+      imgPublicId,
+    );
+    // set image url
+    payload.profileImg = profileImg.secure_url;
     // set id , _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id

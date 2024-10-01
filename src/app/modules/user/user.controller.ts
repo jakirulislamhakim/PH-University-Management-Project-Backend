@@ -2,11 +2,21 @@ import { userServices } from './user.service';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
+import AppError from '../../errors/AppError';
 
 const createStudent = catchAsync(async (req, res) => {
   const { password, student: studentData } = req.body;
+  const imageInfo = req.file;
 
-  const result = await userServices.createStudentIntoDB(password, studentData);
+  if (!imageInfo) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
+  }
+
+  const result = await userServices.createStudentIntoDB(
+    imageInfo,
+    password,
+    studentData,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -17,8 +27,17 @@ const createStudent = catchAsync(async (req, res) => {
 
 const createFaculty = catchAsync(async (req, res) => {
   const { password, faculty: facultyData } = req.body;
+  const imageInfo = req.file;
 
-  const result = await userServices.createFacultyIntoDB(password, facultyData);
+  if (!imageInfo) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
+  }
+
+  const result = await userServices.createFacultyIntoDB(
+    imageInfo,
+    password,
+    facultyData,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -29,8 +48,17 @@ const createFaculty = catchAsync(async (req, res) => {
 
 const createAdmin = catchAsync(async (req, res) => {
   const { password, admin: adminData } = req.body;
+  const imageInfo = req.file;
 
-  const result = await userServices.createAdminIntoDB(password, adminData);
+  if (!imageInfo) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
+  }
+
+  const result = await userServices.createAdminIntoDB(
+    imageInfo,
+    password,
+    adminData,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
