@@ -5,7 +5,7 @@ import {
 } from './enrolledCourse.interface';
 import { Grade } from './enrolledCourse.constant';
 
-const courseMarksSchema = new Schema<TEnrolledCourseMarks>(
+const enrolledCourseMarksSchema = new Schema<TEnrolledCourseMarks>(
   {
     classTest1: {
       type: Number,
@@ -84,7 +84,7 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
     default: true,
   },
   courseMarks: {
-    type: courseMarksSchema,
+    type: enrolledCourseMarksSchema,
     default: {},
   },
   grade: {

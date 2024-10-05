@@ -88,12 +88,20 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   )
     .search(studentSearchableFields)
     .filter()
-    .paginate()
     .sort()
     .fields();
 
-  const result = await studentQuery.modelQuery;
-  return result;
+  // count document before paginate set limit
+  const meta = await studentQuery.countTotal();
+
+  // paginate
+  studentQuery.paginate();
+
+  const student = await studentQuery.modelQuery;
+  return {
+    student,
+    meta,
+  };
 };
 
 const getSingleStudentFromDB = async (id: string) => {

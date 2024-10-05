@@ -10,11 +10,11 @@ const createEnrolledCourseValidationZodSchema = z.object({
 });
 
 // Common schema for course marks
-const courseMarksSchema = z.object({
-  classTest1: z.number().optional(),
-  midTerm: z.number().optional(),
-  classTest2: z.number().optional(),
-  finalTerm: z.number().optional(),
+const enrolledCourseMarksSchema = z.object({
+  classTest1: z.number().max(10).optional(),
+  midTerm: z.number().max(30).optional(),
+  classTest2: z.number().max(10).optional(),
+  finalTerm: z.number().max(50).optional(),
 });
 
 // Schema for updating course marks
@@ -27,7 +27,7 @@ const updateEnrolledCourseMarksValidationZodSchema = z.object({
       required_error: 'Offered course is required',
     }),
     student: z.string({ required_error: 'Student ID is required' }),
-    courseMarks: courseMarksSchema,
+    courseMarks: enrolledCourseMarksSchema,
   }),
 });
 

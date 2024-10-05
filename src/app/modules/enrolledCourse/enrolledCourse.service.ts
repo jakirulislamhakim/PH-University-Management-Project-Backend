@@ -7,6 +7,8 @@ import { Student } from '../student/student.model';
 import mongoose from 'mongoose';
 import { SemesterRegistration } from '../semesterRegistration/semesterRegistration.model';
 import { Course } from '../course/course.model';
+import Faculty from '../faculty/faculty.model';
+import { generateGradeAndGradePoints } from './enrolledCourse.utils';
 
 const createEnrolledCourseIntoDB = async (
   studentId: string,
@@ -162,6 +164,98 @@ const createEnrolledCourseIntoDB = async (
   }
 };
 
+const updateEnrolledCourseMarksIntoDB = async (
+  facultyId: string,
+  payload: Partial<TEnrolledCourse>,
+) => {
+  const isFacultyExists = await Faculty.findOne({ id: facultyId }).select(
+    '_id',
+  );
+  if (!isFacultyExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'The faculty is not found');
+  }
+  const faculty_id = isFacultyExists._id;
+
+  const { semesterRegistration, student, offeredCourse, courseMarks } = payload;
+
+  const isEnrolledCourseExists = await EnrolledCourse.findOne({
+    semesterRegistration,
+    student,
+    offeredCourse,
+    faculty: faculty_id,
+  }).select('faculty _id');
+
+  // check this course is takes this faculty -->
+  //.equals() is mongodb operator for check object id match. bcz obj  id takes reference different memory
+  if (!isEnrolledCourseExists?.faculty.equals(faculty_id)) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "The faculty can't update this course marks",
+    );
+  }
+
+  // check course is available
+  if (!isEnrolledCourseExists) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "The faculty can't update this course marks",
+    );
+  }
+  const { _id: enrolledCourse_id } = isEnrolledCourseExists;
+
+  // update course marks
+  const updateCourseMarks: Record<string, number> = {};
+  if (courseMarks && Object.keys(courseMarks).length) {
+    for (const [key, value] of Object.entries(courseMarks!)) {
+      updateCourseMarks[`courseMarks.${[key]}`] = value;
+    }
+  }
+
+  const updateEnrolledCourseMarks = await EnrolledCourse.findByIdAndUpdate(
+    enrolledCourse_id,
+    updateCourseMarks,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!updateEnrolledCourseMarks) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Enrolled course not found or update failed',
+    );
+  }
+
+  const {
+    courseMarks: { classTest1, classTest2, midTerm, finalTerm },
+  } = updateEnrolledCourseMarks;
+
+  // update grade & grade points dynamically
+  const hasAllExamComplete = classTest1 && classTest2 && midTerm && finalTerm;
+  if (hasAllExamComplete) {
+    const totalMarks = classTest1 + classTest2 + midTerm + finalTerm;
+    const { grade, gradePoints } = generateGradeAndGradePoints(totalMarks);
+
+    const updateEnrolledCourseGrade = await EnrolledCourse.findByIdAndUpdate(
+      enrolledCourse_id,
+      {
+        isCompleted: true,
+        grade,
+        gradePoints,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    return updateEnrolledCourseGrade;
+  }
+
+  return updateEnrolledCourseMarks;
+};
+
 export const enrolledCourseService = {
   createEnrolledCourseIntoDB,
+  updateEnrolledCourseMarksIntoDB,
 };

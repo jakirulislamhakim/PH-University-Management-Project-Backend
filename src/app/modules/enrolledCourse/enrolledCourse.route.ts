@@ -2,7 +2,7 @@ import express from 'express';
 import auth from '../../middleware/auth';
 import validateRequest from '../../middleware/validateRequest';
 import { enrolledCourseValidations } from './enrolledCourse.validation';
-import { EnrolledCourseControllers } from './enrolledCourse.controller';
+import { enrolledCourseControllers } from './enrolledCourse.controller';
 
 const router = express.Router();
 
@@ -12,7 +12,16 @@ router.post(
   validateRequest(
     enrolledCourseValidations.createEnrolledCourseValidationZodSchema,
   ),
-  EnrolledCourseControllers.createEnrolledCourse,
+  enrolledCourseControllers.createEnrolledCourse,
+);
+
+router.patch(
+  '/update-enrolled-course-marks',
+  auth('faculty'),
+  validateRequest(
+    enrolledCourseValidations.updateEnrolledCourseMarksValidationZodSchema,
+  ),
+  enrolledCourseControllers.updateEnrolledCourseMarks,
 );
 
 export const EnrolledCourseRoutes = router;
