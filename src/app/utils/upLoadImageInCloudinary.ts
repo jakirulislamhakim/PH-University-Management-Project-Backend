@@ -3,7 +3,7 @@ import config from '../config';
 import AppError from '../errors/AppError';
 import httpStatus from 'http-status';
 import multer from 'multer';
-// import fs from 'fs';
+import fs from 'fs';
 
 // Configuration
 cloudinary.config({
@@ -22,8 +22,12 @@ export const upLoadImageInCloudinary = async (
       public_id: publicId,
     });
 
-    // delete img from upload files
-    // fs.unlinkSync(imagePath);
+    // Delete the image from 'uploads' folder after successful upload to Cloudinary
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        throw new Error('Error deleting local image');
+      }
+    });
 
     // Return or log the result
     return uploadResult;
