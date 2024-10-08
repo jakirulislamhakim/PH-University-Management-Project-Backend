@@ -15,28 +15,28 @@ const UserRoutes = express.Router();
 
 UserRoutes.post(
   '/create-student',
-  auth(UserRole.admin),
   upload.single('file'),
   parseBodyDataTextToJson,
   validateRequest(studentValidations.createStudentValidationSchema),
+  auth(UserRole.admin, UserRole.superAdmin),
   userControllers.createStudent,
 );
 
 UserRoutes.post(
   '/create-faculty',
-  auth(UserRole.faculty, UserRole.admin),
   upload.single('file'),
   parseBodyDataTextToJson,
   validateRequest(facultyValidation.createFacultyValidationSchema),
+  auth(UserRole.faculty, UserRole.admin),
   userControllers.createFaculty,
 );
 
 UserRoutes.post(
   '/create-admin',
-  // fixme: super admin
   upload.single('file'),
   parseBodyDataTextToJson,
   validateRequest(adminValidations.createAdminValidationSchema),
+  auth(UserRole.superAdmin),
   userControllers.createAdmin,
 );
 

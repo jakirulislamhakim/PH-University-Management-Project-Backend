@@ -3,6 +3,7 @@ import { academicFacultyControllers } from './academicFaculty.controller';
 import validateRequest from '../../middleware/validateRequest';
 import { academicFacultyValidation } from './academicFaculty.validation';
 import auth from '../../middleware/auth';
+import { UserRole } from '../user/user.constant';
 
 const AcademicFacultyRoutes = Router();
 
@@ -11,15 +12,17 @@ AcademicFacultyRoutes.post(
   validateRequest(
     academicFacultyValidation.createAcademicFacultyValidationSchema,
   ),
+  auth(UserRole.superAdmin, UserRole.admin),
   academicFacultyControllers.createAcademicFaculty,
 );
 AcademicFacultyRoutes.get(
   '/',
-  auth(),
+  auth(UserRole.superAdmin),
   academicFacultyControllers.getAllAcademicFaculties,
 );
 AcademicFacultyRoutes.get(
   '/:academicFacultyId',
+  auth(UserRole.superAdmin, UserRole.admin),
   academicFacultyControllers.getSingleAcademicFaculty,
 );
 AcademicFacultyRoutes.patch(
@@ -27,6 +30,7 @@ AcademicFacultyRoutes.patch(
   validateRequest(
     academicFacultyValidation.updateAcademicFacultyValidationSchema,
   ),
+  auth(UserRole.superAdmin, UserRole.admin),
   academicFacultyControllers.updateAllAcademicFaculty,
 );
 

@@ -16,9 +16,10 @@ import { TFaculty } from '../faculty/faculty.interface';
 import Faculty from '../faculty/faculty.model';
 import { Admin } from '../admin/amdin.model';
 import { upLoadImageInCloudinary } from '../../utils/upLoadImageInCloudinary';
+import AcademicDepartment from '../academicDepartment/academicDepartment.model';
 
 const createStudentIntoDB = async (
-  imageInfo: TMulterFile,
+  imageInfo: TMulterFile | undefined,
   password: string,
   payload: TStudent,
 ): Promise<TStudent> => {
@@ -50,6 +51,20 @@ const createStudentIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Admission semester not found');
   }
 
+  // check academic department is valid
+  const isExistsAcademicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+  if (!isExistsAcademicDepartment) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'The Academic department is not found',
+    );
+  }
+
+  // set academic faculty
+  payload.academicFaculty = isExistsAcademicDepartment.academicFaculty;
+
   // start session
   const session = await mongoose.startSession();
 
@@ -66,14 +81,16 @@ const createStudentIntoDB = async (
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
 
-    // upload image in cloudinary
-    const imgPublicId = `${createNewUser[0].id}${payload.name.lastName}`;
-    const profileImg = await upLoadImageInCloudinary(
-      imageInfo.path,
-      imgPublicId,
-    );
-    // set image url
-    payload.profileImg = profileImg.secure_url;
+    if (imageInfo) {
+      // upload image in cloudinary
+      const imgPublicId = `${createNewUser[0].id}${payload.name.lastName}`;
+      const { secure_url } = await upLoadImageInCloudinary(
+        imageInfo.path,
+        imgPublicId,
+      );
+      // set image url
+      payload.profileImg = secure_url;
+    }
     // set id , _id as user
     payload.id = createNewUser[0].id; // embedding user id as id field in student model
     payload.user = createNewUser[0]._id; // reference user _id as user field in student model
@@ -99,7 +116,7 @@ const createStudentIntoDB = async (
 
 // create faculty
 const createFacultyIntoDB = async (
-  imageInfo: TMulterFile,
+  imageInfo: TMulterFile | undefined,
   password: string,
   payload: TFaculty,
 ): Promise<TFaculty> => {
@@ -129,14 +146,16 @@ const createFacultyIntoDB = async (
     // create user into DB with transaction-1
     const [createUser] = await User.create([user], { session });
 
-    // upload image in cloudinary
-    const imgPublicId = `${createUser.id}${payload.name.lastName}`;
-    const profileImg = await upLoadImageInCloudinary(
-      imageInfo.path,
-      imgPublicId,
-    );
-    // set image url
-    payload.profileImg = profileImg.secure_url;
+    if (imageInfo) {
+      // upload image in cloudinary
+      const imgPublicId = `${createUser.id}${payload.name.lastName}`;
+      const profileImg = await upLoadImageInCloudinary(
+        imageInfo.path,
+        imgPublicId,
+      );
+      // set image url
+      payload.profileImg = profileImg.secure_url;
+    }
     // faculty generateID
     payload.id = generatedFacultyId;
     payload.user = createUser._id; // reference created user _id
@@ -158,7 +177,7 @@ const createFacultyIntoDB = async (
 
 // create admin
 const createAdminIntoDB = async (
-  imageInfo: TMulterFile,
+  imageInfo: TMulterFile | undefined,
   password: string,
   payload: TFaculty,
 ) => {
@@ -193,14 +212,16 @@ const createAdminIntoDB = async (
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create admin');
     }
 
-    // upload image in cloudinary
-    const imgPublicId = `${newUser[0].id}${payload.name.lastName}`;
-    const profileImg = await upLoadImageInCloudinary(
-      imageInfo.path,
-      imgPublicId,
-    );
-    // set image url
-    payload.profileImg = profileImg.secure_url;
+    if (imageInfo) {
+      // upload image in cloudinary
+      const imgPublicId = `${newUser[0].id}${payload.name.lastName}`;
+      const profileImg = await upLoadImageInCloudinary(
+        imageInfo.path,
+        imgPublicId,
+      );
+      // set image url
+      payload.profileImg = profileImg.secure_url;
+    }
     // set id , _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id

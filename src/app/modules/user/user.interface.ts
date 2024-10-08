@@ -8,7 +8,7 @@ export interface TUser {
   password: string;
   needsPasswordChange: boolean;
   passwordChangeAt?: Date;
-  role: 'student' | 'faculty' | 'admin';
+  role: keyof typeof UserRole;
   status: (typeof UserStatus)[number];
   isDeleted: boolean;
 }

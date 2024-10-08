@@ -2,15 +2,15 @@ import { userServices } from './user.service';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
-import AppError from '../../errors/AppError';
+// import AppError from '../../errors/AppError';
 
 const createStudent = catchAsync(async (req, res) => {
   const { password, student: studentData } = req.body;
   const imageInfo = req.file;
 
-  if (!imageInfo) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
-  }
+  // if (!imageInfo) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
+  // }
 
   const result = await userServices.createStudentIntoDB(
     imageInfo,
@@ -29,9 +29,9 @@ const createFaculty = catchAsync(async (req, res) => {
   const { password, faculty: facultyData } = req.body;
   const imageInfo = req.file;
 
-  if (!imageInfo) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
-  }
+  // if (!imageInfo) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
+  // }
 
   const result = await userServices.createFacultyIntoDB(
     imageInfo,
@@ -50,9 +50,9 @@ const createAdmin = catchAsync(async (req, res) => {
   const { password, admin: adminData } = req.body;
   const imageInfo = req.file;
 
-  if (!imageInfo) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
-  }
+  // if (!imageInfo) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'No profile image uploaded.');
+  // }
 
   const result = await userServices.createAdminIntoDB(
     imageInfo,
