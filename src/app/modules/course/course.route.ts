@@ -3,29 +3,38 @@ import { courseControllers } from './course.controller';
 import validateRequest from '../../middleware/validateRequest';
 import { courseValidation } from './course.validation';
 import auth from '../../middleware/auth';
+import { UserRole } from '../user/user.constant';
 
 const CourseRoutes = Router();
 
 CourseRoutes.post(
   '/create-course',
-  auth('admin'),
+  auth(UserRole.admin, UserRole.superAdmin),
   validateRequest(courseValidation.createCourseValidationSchema),
   courseControllers.createCourse,
 );
+
 CourseRoutes.get(
   '/',
-  auth('admin', 'faculty', 'student'),
+  auth(UserRole.student, UserRole.admin, UserRole.superAdmin, UserRole.faculty),
   courseControllers.getAllCourse,
 );
+
 CourseRoutes.get(
   '/:id',
-  auth('admin', 'faculty', 'student'),
+  auth(UserRole.student, UserRole.admin, UserRole.superAdmin, UserRole.faculty),
   courseControllers.getSingleCourse,
 );
-CourseRoutes.delete('/:id', courseControllers.deleteSpecificCourse);
+
+CourseRoutes.delete(
+  '/:id',
+  auth(UserRole.admin, UserRole.superAdmin),
+  courseControllers.deleteSpecificCourse,
+);
+
 CourseRoutes.patch(
   '/:id',
-  auth('admin'),
+  auth(UserRole.admin, UserRole.superAdmin),
   validateRequest(courseValidation.updateCourseValidationSchema),
   courseControllers.updateSpecificCourse,
 );
@@ -33,12 +42,20 @@ CourseRoutes.patch(
 CourseRoutes.put(
   '/:courseId/assign-faculties',
   validateRequest(courseValidation.courseWithFacultyValidationSchema),
+  auth(UserRole.admin, UserRole.superAdmin),
   courseControllers.assignFacultiesWithCourse,
 );
+
+CourseRoutes.get(
+  '/:courseId/get-faculties',
+  auth(UserRole.admin, UserRole.superAdmin, UserRole.student, UserRole.faculty),
+  courseControllers.getFacultiesWithCourse,
+);
+
 CourseRoutes.delete(
   '/:courseId/remove-faculties',
-  auth('admin'),
   validateRequest(courseValidation.courseWithFacultyValidationSchema),
+  auth(UserRole.admin, UserRole.superAdmin),
   courseControllers.removeFacultiesWithCourse,
 );
 

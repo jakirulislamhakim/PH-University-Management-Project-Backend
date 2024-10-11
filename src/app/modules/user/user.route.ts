@@ -27,7 +27,7 @@ UserRoutes.post(
   upload.single('file'),
   parseBodyDataTextToJson,
   validateRequest(facultyValidation.createFacultyValidationSchema),
-  auth(UserRole.faculty, UserRole.admin),
+  auth(UserRole.superAdmin, UserRole.admin),
   userControllers.createFaculty,
 );
 
@@ -42,14 +42,14 @@ UserRoutes.post(
 
 UserRoutes.get(
   '/me',
-  auth('student', 'admin', 'faculty'),
+  auth(UserRole.superAdmin, UserRole.admin, UserRole.student, UserRole.faculty),
   userControllers.getMe,
 );
 
 UserRoutes.post(
   '/change-status/:id',
   validateRequest(userValidation.changeUserStatusValidationSchema),
-  auth('admin'),
+  auth(UserRole.superAdmin, UserRole.admin),
   userControllers.changeUserStatus,
 );
 

@@ -9,18 +9,26 @@ const FacultyRoutes = Router();
 
 FacultyRoutes.get(
   '/',
-  auth(UserRole.admin, UserRole.faculty),
-
+  auth(UserRole.superAdmin, UserRole.admin, UserRole.faculty),
   facultyControllers.getAllFaculty,
 );
-FacultyRoutes.get('/:id', facultyControllers.getSingleFaculty);
+FacultyRoutes.get(
+  '/:id',
+  auth(UserRole.superAdmin, UserRole.admin, UserRole.faculty),
+  facultyControllers.getSingleFaculty,
+);
 
 FacultyRoutes.patch(
   '/:id',
   validateRequest(facultyValidation.updateFacultyValidationSchema),
+  auth(UserRole.superAdmin, UserRole.admin),
   facultyControllers.updateSpecificFacultyById,
 );
 
-FacultyRoutes.delete('/:id', facultyControllers.deleteSpecificFacultyById);
+FacultyRoutes.delete(
+  '/:id',
+  auth(UserRole.superAdmin, UserRole.admin),
+  facultyControllers.deleteSpecificFacultyById,
+);
 
 export default FacultyRoutes;

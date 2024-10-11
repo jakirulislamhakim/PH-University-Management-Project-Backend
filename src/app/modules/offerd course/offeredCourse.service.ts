@@ -10,6 +10,8 @@ import { Course } from '../course/course.model';
 import Faculty from '../faculty/faculty.model';
 import { hasTimeConflict } from './offeredCourse.utiles';
 import { RegistrationStatus } from '../semesterRegistration/semesterRegistration.const';
+import { Student } from '../student/student.model';
+import { EnrolledCourse } from '../enrolledCourse/enrolledCourse.model';
 
 // create offered course
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
@@ -124,12 +126,225 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
 
 // get all course data
 const getAllOfferedCourseFromDB = async (query: Record<string, unknown>) => {
-  const offeredCourseQuery = new QueryBuilder(
-    OfferedCourse.find(),
-    query,
-  ).sort();
+  const offeredCourseQuery = new QueryBuilder(OfferedCourse.find(), query)
+    .sort()
+    .paginate();
 
-  const result = await offeredCourseQuery.modelQuery;
+  const meta = await offeredCourseQuery.countTotal();
+
+  const courses = await offeredCourseQuery.modelQuery;
+  return {
+    courses,
+    meta,
+  };
+};
+
+// get all my offered course data for student
+const getMyOfferedCourseForStudentFromDB = async (
+  studentId: string,
+  query: Record<string, string>,
+) => {
+  const student = await Student.findOne({ id: studentId });
+  if (!student) {
+    throw new AppError(httpStatus.NOT_FOUND, 'The student is not found ');
+  }
+
+  // current ongoing semester
+  const currentOngoingSemesterRegistration = await SemesterRegistration.findOne(
+    {
+      status: 'ONGOING',
+    },
+  );
+
+  if (!currentOngoingSemesterRegistration) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'There is no semester currently ongoing ',
+    );
+  }
+
+  // pagination query
+  const page = parseInt(query?.page) || 1;
+  const limit = parseInt(query?.limit) || 0;
+  const skip = (page - 1) * limit;
+
+  const paginationQuery = [
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+  ];
+
+  const aggregationQuery = [
+    {
+      $match: {
+        semesterRegistration: currentOngoingSemesterRegistration._id,
+        academicFaculty: student.academicFaculty,
+        academicDepartment: student.academicDepartment,
+      },
+    },
+    {
+      $lookup: {
+        from: 'courses',
+        localField: 'course',
+        foreignField: '_id',
+        as: 'course',
+      },
+    },
+    {
+      $unwind: '$course',
+    },
+    {
+      $lookup: {
+        from: 'enrolledcourses',
+        let: {
+          currentOngoingSemesterRegistration:
+            currentOngoingSemesterRegistration._id,
+          currentStudent: student._id,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $eq: [
+                      '$semesterRegistration',
+                      '$$currentOngoingSemesterRegistration',
+                    ],
+                  },
+                  {
+                    $eq: ['$student', '$$currentStudent'],
+                  },
+                  {
+                    $eq: ['$isEnrolled', true],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'enrolledMyCourses',
+      },
+    },
+    {
+      $lookup: {
+        from: 'enrolledcourses',
+        let: {
+          currentStudent: student._id,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $eq: ['$student', '$$currentStudent'],
+                  },
+                  {
+                    $eq: ['$isCompleted', true],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'completedCourses',
+      },
+    },
+    {
+      $addFields: {
+        completedCourseIds: {
+          $map: {
+            input: '$completedCourses',
+            as: 'completed',
+            in: '$$completed.course',
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        isPreRequisiteFulfill: {
+          $or: [
+            { $eq: ['$course.preRequisiteCourses', []] },
+            {
+              $setIsSubset: [
+                '$course.preRequisiteCourses.course',
+                '$completedCourseIds',
+              ],
+            },
+          ],
+        },
+        isAlreadyEnrolled: {
+          $in: [
+            '$course._id',
+            {
+              $map: {
+                input: '$enrolledMyCourses',
+                as: 'enroll',
+                in: '$$enroll.course',
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        isAlreadyEnrolled: false,
+        isPreRequisiteFulfill: true,
+      },
+    },
+    {
+      $project: { completedCourses: 0, enrolledMyCourses: 0 },
+    },
+  ];
+
+  const result = await OfferedCourse.aggregate([
+    ...aggregationQuery,
+    ...paginationQuery,
+  ]);
+
+  // pagination
+
+  const total = (await OfferedCourse.aggregate(aggregationQuery)).length;
+  const totalPage = Math.ceil(total / limit);
+
+  const meta = {
+    page,
+    limit,
+    total,
+    totalPage,
+  };
+
+  return {
+    meta,
+    myOfferedCourse: result,
+  };
+};
+
+// get single course data by object id
+const getMyEnrolledCourseForStudentFromDB = async (
+  studentId: string,
+  query: Record<string, string>,
+) => {
+  const student = await Student.findOne({ id: studentId });
+  if (!student) {
+    throw new AppError(httpStatus.NOT_FOUND, 'The student is not found');
+  }
+
+  const enrolledCourseQuery = new QueryBuilder(
+    EnrolledCourse.find({ student: student._id }).populate(
+      'semesterRegistration academicSemester academicFaculty academicDepartment offeredCourse course student faculty',
+    ),
+    query,
+  );
+
+  const result = await enrolledCourseQuery.modelQuery;
+
   return result;
 };
 
@@ -218,6 +433,8 @@ const updateSpecificOfferedCourseIntoDB = async (
 export const offeredCourseServices = {
   createOfferedCourseIntoDB,
   getAllOfferedCourseFromDB,
+  getMyOfferedCourseForStudentFromDB,
+  getMyEnrolledCourseForStudentFromDB,
   getSingleOfferedCourseFromDB,
   updateSpecificOfferedCourseIntoDB,
 };

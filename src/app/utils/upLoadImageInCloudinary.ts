@@ -23,11 +23,7 @@ export const upLoadImageInCloudinary = async (
     });
 
     // Delete the image from 'uploads' folder after successful upload to Cloudinary
-    fs.unlink(imagePath, (err) => {
-      if (err) {
-        throw new Error('Error deleting local image');
-      }
-    });
+    await fs.promises.unlink(imagePath);
 
     // Return or log the result
     return uploadResult;

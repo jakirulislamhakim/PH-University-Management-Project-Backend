@@ -129,6 +129,16 @@ const createFacultyIntoDB = async (
     );
   }
 
+  const isExistAcademicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+  if (!isExistAcademicDepartment) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'The academic deferment is not found',
+    );
+  }
+
   const session = await mongoose.startSession();
   try {
     // start session
@@ -159,6 +169,7 @@ const createFacultyIntoDB = async (
     // faculty generateID
     payload.id = generatedFacultyId;
     payload.user = createUser._id; // reference created user _id
+    payload.academicFaculty = isExistAcademicDepartment.academicFaculty; // set academicFaculty
 
     // create faculty into DB with transaction-2
     const [createFaculty] = await Faculty.create([payload], { session });

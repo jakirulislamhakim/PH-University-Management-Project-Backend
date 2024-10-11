@@ -3,19 +3,19 @@ export const generateGradeAndGradePoints = (totalNum: number) => {
   let gradePoints = 0;
 
   if (totalNum >= 80) {
-    grade = 'A';
+    grade = 'A+';
     gradePoints = 4.0;
   } else if (totalNum >= 70) {
-    grade = 'B';
+    grade = 'A';
     gradePoints = 3.5;
   } else if (totalNum >= 60) {
-    grade = 'C';
+    grade = 'B';
     gradePoints = 3.0;
   } else if (totalNum >= 50) {
-    grade = 'D';
+    grade = 'C';
     gradePoints = 2.0;
   } else if (totalNum >= 40) {
-    grade = 'E';
+    grade = 'D';
     gradePoints = 1.0;
   } else {
     grade = 'F';

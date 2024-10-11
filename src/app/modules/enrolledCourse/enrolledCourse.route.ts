@@ -3,24 +3,25 @@ import auth from '../../middleware/auth';
 import validateRequest from '../../middleware/validateRequest';
 import { enrolledCourseValidations } from './enrolledCourse.validation';
 import { enrolledCourseControllers } from './enrolledCourse.controller';
+import { UserRole } from '../user/user.constant';
 
 const router = express.Router();
 
 router.post(
   '/create-enrolled-course',
-  auth('student'),
   validateRequest(
     enrolledCourseValidations.createEnrolledCourseValidationZodSchema,
   ),
+  auth(UserRole.student),
   enrolledCourseControllers.createEnrolledCourse,
 );
 
 router.patch(
   '/update-enrolled-course-marks',
-  auth('faculty'),
   validateRequest(
     enrolledCourseValidations.updateEnrolledCourseMarksValidationZodSchema,
   ),
+  auth(UserRole.faculty, UserRole.superAdmin, UserRole.admin),
   enrolledCourseControllers.updateEnrolledCourseMarks,
 );
 

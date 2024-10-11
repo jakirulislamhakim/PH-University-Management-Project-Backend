@@ -8,7 +8,10 @@ const parseBodyDataTextToJson = (
   next: NextFunction,
 ) => {
   if (!req.body.data) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Data is not given');
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Data is not given by form data in data property',
+    );
   }
 
   req.body = JSON.parse(req.body?.data);
